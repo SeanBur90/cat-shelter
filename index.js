@@ -1,9 +1,10 @@
-const fs = require('fs');
-const server = require('http').createServer();
+const http = require('http');
+const port = 3000;
 
-server.on('request', (req, res) => {
-  const src = fs.createReadStream('./textFile.txt');
-  src.on('data', data => res.write(data));
-  src.on('end', () => res.end());
-});
-server.listen(5000);
+http.createServer((req, res) => {
+    res.writeHead(200, {
+        'Content-Type': 'text/plain'
+    });
+    res.write('Hello JS WORLD!');
+    res.end();
+}).listen(port);
