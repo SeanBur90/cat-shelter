@@ -1,8 +1,10 @@
 const url = require('url');
 const fs = require('fs');
 const path = require('path');
-//const cats = require('../data/cats.json');
-//const breeds = require('../data/breeds.json');
+const qs = require('querystring');
+const formidable = require('formidable');
+const cats = require('../data/cats.json');
+const breeds = require('../data/breeds.json');
 
 module.exports = (req, res) => {
     const pathname = url.parse(req.url).pathname;
@@ -63,7 +65,11 @@ module.exports = (req, res) => {
       const index = fs.createReadStream(filePath);
   
       index.on('data', (data) => {
-        res.write(data);
+        console.log('Breeds are: ', breeds)
+        let catBreedPlaceHolder =  breeds.map( (breed) => `<option value=${breed}</option>`)
+        let modifiedData =  data.toString().replace('{{catBreeds}}', catBreedPlaceHolder)
+
+        res.write(modifiedData);
       });
       index.on('end', () => {
         res.end();
@@ -75,9 +81,30 @@ module.exports = (req, res) => {
     } else if (pathname === '/cats/add-breed' && req.method === 'POST') {
       let formData = "";
       req.on('data', (data) => {
-        console.log("the breed form data is ", data);
+        console.log("the breed form data is ", data.toString());
         formData += data;
         console.log("the new data is ", formData)
+        let parseData = qs.parse(formData);
+        console.log('parsed data is: ', parseData.breed);
+
+        fs.readFile('./data/breeds.json', 'utf8', (err, data) => {
+          if(err) {
+            console.log(err)
+            return
+          }
+          let currentBreeds = JSON.parse(data);
+          currentBreeds.push(parseData.breed)
+          console.log('The breed.json data is' , currentBreeds);
+          let updatedBreeds = JSON.stringify(currentBreeds);
+          console.log('JSON updated', updatedBreeds);
+
+          fs.writeFile('./data/breeds.json', updatedBreeds, 'utf-8', () => {
+            console.log('The breed was uploaded successfully...')
+          })
+          res.writeHead(301, { location: '/'});
+          res.end();
+        })
+
       })
     } else {
       return true;
