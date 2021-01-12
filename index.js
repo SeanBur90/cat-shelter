@@ -1,9 +1,12 @@
-const fs = require('fs');
-const server = require('http').createServer();
+const http = require('http');
+const port = 3000;
+const handlers = require('./handlers');
 
-server.on('request', (req, res) => {
-  const src = fs.createReadStream('./textFile.txt');
-  src.on('data', data => res.write(data));
-  src.on('end', () => res.end());
-});
-server.listen(5000);
+http.createServer((req, res) => {
+    
+    for(let handler of handlers) {
+        if(!handler(req, res)) {
+            break;
+        }
+    }
+}).listen(port);
