@@ -37,7 +37,11 @@ module.exports = (req, res) => {
       const index = fs.createReadStream(filePath);
   
       index.on('data', (data) => {
-        res.write(data);
+        console.log('Breeds are: ', breeds)
+        let catBreedPlaceHolder =  breeds.map( (breed) => `<option value"${breed}">${breed}</option>`)
+        let modifiedData =  data.toString().replace('{{catBreeds}}', catBreedPlaceHolder)
+
+        res.write(modifiedData);
       });
       index.on('end', () => {
         res.end();
@@ -65,11 +69,7 @@ module.exports = (req, res) => {
       const index = fs.createReadStream(filePath);
   
       index.on('data', (data) => {
-        console.log('Breeds are: ', breeds)
-        let catBreedPlaceHolder =  breeds.map( (breed) => `<option value=${breed}</option>`)
-        let modifiedData =  data.toString().replace('{{catBreeds}}', catBreedPlaceHolder)
-
-        res.write(modifiedData);
+        res.write(data);
       });
       index.on('end', () => {
         res.end();
